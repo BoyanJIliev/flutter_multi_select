@@ -119,7 +119,7 @@ class _SimpleMultiSelectContainerState<T>
 
   @override
   void didUpdateWidget(MultiSelectContainer<T> oldWidget) {
-    _addInitiallySelectedItemsToSelectedList();
+    _setPerpetualSelectedItemsCount();
     if (widget.controller != null) {
       widget.controller!.deselectAll = oldWidget.controller!.deselectAll;
       widget.controller!.getSelectedItems =
@@ -129,12 +129,19 @@ class _SimpleMultiSelectContainerState<T>
     super.didUpdateWidget(oldWidget);
   }
 
-  //add initially selected items and find perpetual selected items count
+  // add initially selected items and find perpetual selected items count
   void _addInitiallySelectedItemsToSelectedList() {
     final initiallySelected = _items
         .where((item) => item.selected || item.perpetualSelected)
         .toList();
     _selectedItems.addAll(initiallySelected);
+    _perpetualSelectedItemsCount =
+        _items.where((item) => item.perpetualSelected).length;
+    setState(() {});
+  }
+
+  // find perpetual selected items count
+  void _setPerpetualSelectedItemsCount() {
     _perpetualSelectedItemsCount =
         _items.where((item) => item.perpetualSelected).length;
     setState(() {});
@@ -236,17 +243,17 @@ class _SimpleMultiSelectContainerState<T>
 
     final decoration = !enabled
         ? itemDecoration.disabledDecoration ??
-            commonItemsDecoration.disabledDecoration ??
-            simpleCardDecoration.getDisabledDecoration(context)
-        ///////
+        commonItemsDecoration.disabledDecoration ??
+        simpleCardDecoration.getDisabledDecoration(context)
+    ///////
         : isSelected
-            ? itemDecoration.selectedDecoration ??
-                commonItemsDecoration.selectedDecoration ??
-                simpleCardDecoration.getSelectedDecoration(context)
-            ////
-            : itemDecoration.decoration ??
-                commonItemsDecoration.decoration ??
-                simpleCardDecoration.getDecoration(context);
+        ? itemDecoration.selectedDecoration ??
+        commonItemsDecoration.selectedDecoration ??
+        simpleCardDecoration.getSelectedDecoration(context)
+    ////
+        : itemDecoration.decoration ??
+        commonItemsDecoration.decoration ??
+        simpleCardDecoration.getDecoration(context);
     return decoration;
   }
 
@@ -254,53 +261,53 @@ class _SimpleMultiSelectContainerState<T>
   Widget build(BuildContext context) {
     return widget.showInListView
         ? ListView.separated(
-            shrinkWrap: widget.listViewSettings.shrinkWrap,
-            scrollDirection: widget.listViewSettings.scrollDirection,
-            reverse: widget.listViewSettings.reverse,
-            addAutomaticKeepAlives:
-                widget.listViewSettings.addAutomaticKeepAlives,
-            addRepaintBoundaries: widget.listViewSettings.addRepaintBoundaries,
-            dragStartBehavior: widget.listViewSettings.dragStartBehavior,
-            keyboardDismissBehavior:
-                widget.listViewSettings.keyboardDismissBehavior,
-            clipBehavior: widget.listViewSettings.clipBehavior,
-            controller: widget.listViewSettings.controller,
-            primary: widget.listViewSettings.primary,
-            physics: widget.listViewSettings.physics,
-            padding: widget.listViewSettings.padding,
-            cacheExtent: widget.listViewSettings.cacheExtent,
-            restorationId: widget.listViewSettings.restorationId,
-            itemCount: _items.length,
-            separatorBuilder: widget.listViewSettings.separatorBuilder ??
-                (BuildContext context, int index) {
-                  return const SizedBox(
-                    height: 5,
-                  );
-                },
-            itemBuilder: (BuildContext context, int index) {
-              // wrap in the center, otherwise not affect each single item's margin and padding properties.
-              // like different paddings for a single item.
-              return Center(
-                child: getItem(_items[index]),
-              );
-            },
-          )
+      shrinkWrap: widget.listViewSettings.shrinkWrap,
+      scrollDirection: widget.listViewSettings.scrollDirection,
+      reverse: widget.listViewSettings.reverse,
+      addAutomaticKeepAlives:
+      widget.listViewSettings.addAutomaticKeepAlives,
+      addRepaintBoundaries: widget.listViewSettings.addRepaintBoundaries,
+      dragStartBehavior: widget.listViewSettings.dragStartBehavior,
+      keyboardDismissBehavior:
+      widget.listViewSettings.keyboardDismissBehavior,
+      clipBehavior: widget.listViewSettings.clipBehavior,
+      controller: widget.listViewSettings.controller,
+      primary: widget.listViewSettings.primary,
+      physics: widget.listViewSettings.physics,
+      padding: widget.listViewSettings.padding,
+      cacheExtent: widget.listViewSettings.cacheExtent,
+      restorationId: widget.listViewSettings.restorationId,
+      itemCount: _items.length,
+      separatorBuilder: widget.listViewSettings.separatorBuilder ??
+              (BuildContext context, int index) {
+            return const SizedBox(
+              height: 5,
+            );
+          },
+      itemBuilder: (BuildContext context, int index) {
+        // wrap in the center, otherwise not affect each single item's margin and padding properties.
+        // like different paddings for a single item.
+        return Center(
+          child: getItem(_items[index]),
+        );
+      },
+    )
         : Wrap(
-            //
-            direction: widget.wrapSettings.direction,
-            alignment: widget.wrapSettings.alignment,
-            spacing: widget.wrapSettings.spacing,
-            runAlignment: widget.wrapSettings.runAlignment,
-            runSpacing: widget.wrapSettings.runSpacing,
-            crossAxisAlignment: widget.wrapSettings.crossAxisAlignment,
-            textDirection: widget.wrapSettings.textDirection,
-            verticalDirection: widget.wrapSettings.verticalDirection,
-            clipBehavior: widget.wrapSettings.clipBehavior,
-            children: _items.map((item) {
-              var animatedContainer = getItem(item);
-              return animatedContainer;
-            }).toList(),
-          );
+      //
+      direction: widget.wrapSettings.direction,
+      alignment: widget.wrapSettings.alignment,
+      spacing: widget.wrapSettings.spacing,
+      runAlignment: widget.wrapSettings.runAlignment,
+      runSpacing: widget.wrapSettings.runSpacing,
+      crossAxisAlignment: widget.wrapSettings.crossAxisAlignment,
+      textDirection: widget.wrapSettings.textDirection,
+      verticalDirection: widget.wrapSettings.verticalDirection,
+      clipBehavior: widget.wrapSettings.clipBehavior,
+      children: _items.map((item) {
+        var animatedContainer = getItem(item);
+        return animatedContainer;
+      }).toList(),
+    );
   }
 
   Widget getItem(MultiSelectCard<T> item) {
@@ -308,7 +315,7 @@ class _SimpleMultiSelectContainerState<T>
     final _prefix = _getPrefix(item);
     final _suffix = _getSuffix(item);
     return AnimatedContainer(
-        //
+      //
         clipBehavior: item.clipBehavior,
         //
         duration: widget.animations.decorationAimationDuration,
@@ -325,13 +332,13 @@ class _SimpleMultiSelectContainerState<T>
             onTap: item.enabled == false
                 ? null
                 : () {
-                    _onChange(item);
-                  },
+              _onChange(item);
+            },
             child: Container(
               alignment: item.alignment,
               padding: (item.child == null &&
-                      item.contentPadding == null &&
-                      widget.itemsPadding == null)
+                  item.contentPadding == null &&
+                  widget.itemsPadding == null)
                   ? kCardPadding
                   : item.contentPadding ?? widget.itemsPadding,
               margin: item.margin ?? kCardMargin,
@@ -343,33 +350,33 @@ class _SimpleMultiSelectContainerState<T>
                   _prefix == null
                       ? const SizedBox()
                       : Padding(
-                          padding: EdgeInsets.only(right: item.labelGap ?? 4),
-                          child: !item.enabled
-                              ? SizedBox(
-                                  key: ValueKey(item.value),
-                                  child: _prefix.disabledPrefix ??
-                                      _prefix.enabledPrefix,
-                                )
-                              : AnimatedSwitcher(
-                                  duration:
-                                      widget.animations.prefixAimationDuration,
-                                  switchInCurve:
-                                      widget.animations.prefixAnimationCurve,
-                                  switchOutCurve:
-                                      widget.animations.prefixAnimationCurve,
-                                  layoutBuilder: (Widget? currentChild,
-                                      List<Widget> previousChildren) {
-                                    return currentChild!;
-                                  },
-                                  child: isSelected
-                                      ? SizedBox(
-                                          key: ValueKey(item.value),
-                                          child: _prefix.selectedPrefix ??
-                                              _prefix.enabledPrefix,
-                                        )
-                                      : SizedBox(child: _prefix.enabledPrefix),
-                                ),
-                        ),
+                    padding: EdgeInsets.only(right: item.labelGap ?? 4),
+                    child: !item.enabled
+                        ? SizedBox(
+                      key: ValueKey(item.value),
+                      child: _prefix.disabledPrefix ??
+                          _prefix.enabledPrefix,
+                    )
+                        : AnimatedSwitcher(
+                      duration:
+                      widget.animations.prefixAimationDuration,
+                      switchInCurve:
+                      widget.animations.prefixAnimationCurve,
+                      switchOutCurve:
+                      widget.animations.prefixAnimationCurve,
+                      layoutBuilder: (Widget? currentChild,
+                          List<Widget> previousChildren) {
+                        return currentChild!;
+                      },
+                      child: isSelected
+                          ? SizedBox(
+                        key: ValueKey(item.value),
+                        child: _prefix.selectedPrefix ??
+                            _prefix.enabledPrefix,
+                      )
+                          : SizedBox(child: _prefix.enabledPrefix),
+                    ),
+                  ),
                   AnimatedDefaultTextStyle(
                     duration: widget.animations.labelAimationDuration,
                     curve: widget.animations.labeAnimationlCurve,
@@ -383,33 +390,33 @@ class _SimpleMultiSelectContainerState<T>
                   _suffix == null
                       ? const SizedBox()
                       : Padding(
-                          padding: EdgeInsets.only(left: item.labelGap ?? 4),
-                          child: !item.enabled
-                              ? SizedBox(
-                                  key: ValueKey(item.value),
-                                  child: _suffix.disabledSuffix ??
-                                      _suffix.enabledSuffix,
-                                )
-                              : AnimatedSwitcher(
-                                  duration:
-                                      widget.animations.suffixAimationDuration,
-                                  switchInCurve:
-                                      widget.animations.suffixAnimationCurve,
-                                  switchOutCurve:
-                                      widget.animations.suffixAnimationCurve,
-                                  layoutBuilder: (Widget? currentChild,
-                                      List<Widget> previousChildren) {
-                                    return currentChild!;
-                                  },
-                                  child: isSelected
-                                      ? SizedBox(
-                                          key: ValueKey(item.value),
-                                          child: _suffix.selectedSuffix ??
-                                              _suffix.enabledSuffix,
-                                        )
-                                      : SizedBox(child: _suffix.enabledSuffix),
-                                ),
-                        ),
+                    padding: EdgeInsets.only(left: item.labelGap ?? 4),
+                    child: !item.enabled
+                        ? SizedBox(
+                      key: ValueKey(item.value),
+                      child: _suffix.disabledSuffix ??
+                          _suffix.enabledSuffix,
+                    )
+                        : AnimatedSwitcher(
+                      duration:
+                      widget.animations.suffixAimationDuration,
+                      switchInCurve:
+                      widget.animations.suffixAnimationCurve,
+                      switchOutCurve:
+                      widget.animations.suffixAnimationCurve,
+                      layoutBuilder: (Widget? currentChild,
+                          List<Widget> previousChildren) {
+                        return currentChild!;
+                      },
+                      child: isSelected
+                          ? SizedBox(
+                        key: ValueKey(item.value),
+                        child: _suffix.selectedSuffix ??
+                            _suffix.enabledSuffix,
+                      )
+                          : SizedBox(child: _suffix.enabledSuffix),
+                    ),
+                  ),
                 ],
               ),
             ),
